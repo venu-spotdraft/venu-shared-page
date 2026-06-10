@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Services Project Model</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efe9;
+  --text:#1a1a18;--text2:#555550;--text3:#888880;
+  --border:#e0dfd8;--border2:#ccccc4;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#185FA5;
+  --green:#3B6D11;--green-bg:#EAF3DE;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --gray-bg:#F1EFE8;--gray-text:#5F5E5A;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1c;--bg2:#272724;--bg3:#2e2e2b;
+    --text:#f0efe9;--text2:#a8a89e;--text3:#6e6e66;
+    --border:#3a3a36;--border2:#4a4a44;
+    --blue-bg:#0c2a45;--blue-text:#85B7EB;
+    --green-bg:#1a2e0a;--green:#6db83a;
+    --amber-bg:#2e1e05;--amber:#e8a030;
+    --red-bg:#2e1010;--red:#e06060;
+    --gray-bg:#2a2a26;--gray-text:#a0a098;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);font-size:14px;min-height:100vh}
+.shell{max-width:960px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.08)}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px}
+.topbar h1{font-size:15px;font-weight:600;color:var(--text)}
+.topbar span{font-size:12px;color:var(--text3);background:var(--bg3);padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
+.nav{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap;overflow-x:auto}
+.tab{padding:8px 13px;font-size:12.5px;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid transparent;color:var(--text2);background:transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tab.active{background:var(--bg);border-color:var(--border);border-bottom-color:var(--bg);color:var(--text);font-weight:500;margin-bottom:-1px}
+.tab:hover:not(.active){color:var(--text);background:var(--bg)}
+.pane{display:none;padding:20px}
+.pane.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11.5px;color:var(--text2);font-weight:500}
+.field input,.field select{font-size:13px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;border:1px solid var(--border)}
+.metric .lbl{font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.metric .val{font-size:21px;font-weight:600;color:var(--text)}
+.metric .sub{font-size:11px;color:var(--text2);margin-top:3px}
+table.rt{width:100%;border-collapse:collapse;font-size:12.5px}
+table.rt th{text-align:left;padding:7px 9px;font-size:11px;font-weight:600;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+table.rt td{padding:7px 9px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+table.rt tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-blue{background:var(--blue-bg);color:var(--blue-text)}
+.b-gray{background:var(--gray-bg);color:var(--gray-text)}
+.rag-r{background:var(--red-bg);color:var(--red);padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600}
+.rag-a{background:var(--amber-bg);color:var(--amber);padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600}
+.rag-g{background:var(--green-bg);color:var(--green);padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.btn{padding:8px 16px;border-radius:var(--radius);font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-weight:500;transition:all .15s}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:#0C447C;border-color:#0C447C}
+.pl-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;color:var(--text)}
+.pl-row.total{border-top:1px solid var(--border);margin-top:5px;padding-top:10px;font-weight:600}
+.prog-bar{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;flex:1;border:1px solid var(--border)}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s}
+.util-bar{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;margin-top:4px;border:1px solid var(--border)}
+.util-fill{height:100%;border-radius:5px}
+.proj-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px}
+.proj-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.info-box{background:var(--bg2);border-radius:var(--radius);padding:10px 13px;margin-top:10px;font-size:12px;color:var(--text2);border:1px solid var(--border);line-height:1.5}
+.ts-grid{display:grid;grid-template-columns:130px repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:12px}
+.ts-cell{background:var(--bg);padding:8px 7px}
+.ts-head{background:var(--bg2);font-weight:600;font-size:11px;color:var(--text2)}
+.ts-input{width:100%;background:transparent;border:none;font-size:12px;color:var(--text);outline:none;text-align:center}
+.risk-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.risk-row:last-child{border-bottom:none}
+.section-note{font-size:11.5px;color:var(--text3);margin-bottom:12px;line-height:1.5}
+.row-flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{opacity:.4}
+select option{background:var(--bg);color:var(--text)}
+@media(max-width:640px){.metric-row{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.nav{gap:1px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="topbar">
+  <i class="ti ti-briefcase" style="font-size:20px;color:var(--blue)"></i>
+  <h1>Services Project Model</h1>
+  <span>Legal Ops · SaaS Services Wing</span>
+</div>
+<div class="nav" id="nav">
+  <div class="tab active" onclick="showTab('intake',this)"><i class="ti ti-file-description"></i> Project intake</div>
+  <div class="tab" onclick="showTab('estimation',this)"><i class="ti ti-calculator"></i> Estimation & QA</div>
+  <div class="tab" onclick="showTab('pl',this)"><i class="ti ti-chart-bar"></i> P&L model</div>
+  <div class="tab" onclick="showTab('risks',this)"><i class="ti ti-alert-triangle"></i> Risks</div>
+  <div class="tab" onclick="showTab('timeline',this)"><i class="ti ti-calendar"></i> Timeline</div>
+  <div class="tab" onclick="showTab('timesheet',this)"><i class="ti ti-clock"></i> Timesheet</div>
+  <div class="tab" onclick="showTab('portfolio',this)"><i class="ti ti-layout-dashboard"></i> Portfolio</div>
+  <div class="tab" onclick="showTab('utilization',this)"><i class="ti ti-users"></i> Utilization</div>
+</div>
+
+<!-- INTAKE -->
+<div id="tab-intake" class="pane active">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-id" style="color:var(--blue)"></i> Project metadata</div>
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="field"><label>Project ID</label><input id="pid" value="PRJ-001"/></div>
+      <div class="field"><label>Project name</label><input id="pname" value="Acme Legal Ops"/></div>
+    </div>
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="field"><label>Geo</label><input id="geo" value="APAC"/></div>
+      <div class="field"><label>Account owner</label><input id="ao" value="Priya S."/></div>
+      <div class="field"><label>CSM</label><input id="csm" value="Rahul M."/></div>
+    </div>
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="field"><label>Planned start date</label><input type="date" id="startdate" value="2026-06-10" onchange="calcAll()"/></div>
+      <div class="field"><label>Project health (RAG)</label>
+        <select id="health">
+          <option value="green">Green — on track</option>
+          <option value="amber">Amber — watch</option>
+          <option value="red">Red — at risk</option>
+        </select>
+      </div>
+      <div class="field"><label>Current milestone</label>
+        <select id="milestone">
+          <option value="kickoff">Kick Off</option>
+          <option value="discovery">Discovery</option>
+          <option value="execution">Execution</option>
+          <option value="qa">QA</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="field"><label>Project status</label>
+        <select id="projstatus" onchange="renderOnHoldBanner()">
+          <option value="active">Active</option>
+          <option value="onhold">On-Hold</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="field"><label>On-hold reason (if applicable)</label><input id="holdreason" placeholder="e.g. Awaiting client data..."/></div>
+      <div class="field"><label>On-hold since</label><input type="date" id="holddate"/></div>
+    </div>
+    <div id="onhold-banner" style="display:none;margin-top:2px;padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);font-size:12.5px;color:var(--amber)">
+      <i class="ti ti-player-pause" style="font-size:15px;vertical-align:-2px;margin-right:6px"></i>
+      <strong>Project is On-Hold.</strong> Resources should be de-allocated or re-assigned. Utilization dashboard will flag these resources as available.
+    </div>
+    <div class="divider"></div>
+    <div class="field"><label style="font-size:11.5px;color:var(--text2);font-weight:500">Workstreams in scope</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        <label id="pill_migration" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:500;background:var(--blue);color:#fff;border-color:var(--blue);transition:all .15s"><input type="checkbox" id="ws_migration" checked onchange="syncWorkstreams()" style="display:none"/> Migration</label>
+        <label id="pill_templates" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:500;background:var(--blue);color:#fff;border-color:var(--blue);transition:all .15s"><input type="checkbox" id="ws_templates" checked onchange="syncWorkstreams()" style="display:none"/> Templates</label>
+        <label id="pill_managed" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:500;background:var(--bg2);color:var(--text2);transition:all .15s"><input type="checkbox" id="ws_managed" onchange="syncWorkstreams()" style="display:none"/> Managed Services</label>
+        <label id="pill_custom" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:500;background:var(--bg2);color:var(--text2);transition:all .15s"><input type="checkbox" id="ws_custom" onchange="syncWorkstreams()" style="display:none"/> Customisations</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIGRATION SCOPE (always visible, enabled/disabled by workstream) -->
+  <div class="card" id="scope-migration-card">
+    <div class="card-title"><i class="ti ti-file-import" style="color:var(--blue)"></i> Migration scope</div>
+    <div class="grid3">
+      <div class="field"><label>Contracted volume (migration)</label><input type="number" id="vol" value="500" onchange="calcAll()" class="scope-mig-input"/></div>
+      <div class="field"><label>Migration complexity</label>
+        <select id="mig_complexity" onchange="updatePriceDefaults();calcAll()" class="scope-mig-input">
+          <option value="simple">Simple</option>
+          <option value="medium" selected>Medium</option>
+          <option value="complex">Complex</option>
+        </select>
+      </div>
+      <div class="field"><label>QA reviewers (migration)</label><input type="number" id="qacount" value="2" onchange="calcAll()" class="scope-mig-input"/></div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE SCOPE (always visible) -->
+  <div class="card" id="scope-templates-card">
+    <div class="card-title"><i class="ti ti-template" style="color:var(--blue)"></i> Template scope</div>
+    <div class="grid3">
+      <div class="field"><label>Number of templates</label><input type="number" id="tmpl_count" value="5" onchange="calcAll()" class="scope-tmpl-input"/></div>
+      <div class="field"><label>Template complexity</label>
+        <select id="tmpl_complexity" onchange="updatePriceDefaults();calcAll()" class="scope-tmpl-input">
+          <option value="simple">Simple</option>
+          <option value="medium" selected>Medium</option>
+          <option value="complex">Complex</option>
+        </select>
+      </div>
+      <div class="field"><label>Legal Engineers</label><input type="number" id="lecount" value="1" onchange="calcAll()" class="scope-tmpl-input"/></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="field"><label>QA reviewers (templates)</label><input type="number" id="tmpl_qacount" value="1" onchange="calcAll()" class="scope-tmpl-input"/></div>
+    </div>
+  </div>
+
+  <!-- MANAGED SERVICES SCOPE (always visible) -->
+  <div class="card" id="scope-managed-card">
+    <div class="card-title"><i class="ti ti-headset" style="color:var(--blue)"></i> Managed services scope</div>
+    <div class="grid3">
+      <div class="field"><label>Contracted hours</label><input type="number" id="ms_hours" value="0" onchange="calcAll()" class="scope-ms-input"/></div>
+      <div class="field"><label>Resources assigned</label><input type="number" id="ms_resources" value="1" onchange="calcAll()" class="scope-ms-input"/></div>
+    </div>
+  </div>
+
+  <!-- CUSTOMISATIONS SCOPE (always visible) -->
+  <div class="card" id="scope-custom-card">
+    <div class="card-title"><i class="ti ti-tool" style="color:var(--blue)"></i> Customisations scope</div>
+    <div class="grid3">
+      <div class="field"><label>Contracted hours</label><input type="number" id="cust_hours" value="0" onchange="calcAll()" class="scope-cust-input"/></div>
+      <div class="field"><label>Resources assigned</label><input type="number" id="cust_resources" value="1" onchange="calcAll()" class="scope-cust-input"/></div>
+    </div>
+  </div>
+
+  <!-- ESTIMATION RATE TABLE -->
+  <div class="card">
+    <div class="card-title"><i class="ti ti-adjustments" style="color:var(--blue)"></i> Estimation (editable — update as time study matures)</div>
+    <div style="overflow-x:auto">
+      <table class="rt" style="min-width:500px">
+        <thead><tr><th>Metric</th><th>Simple</th><th>Medium</th><th>Complex</th><th>Unit</th></tr></thead>
+        <tbody>
+          <tr><td>Claude batch time (per 500 contracts)</td><td><input type="number" id="r_claude_s" value="5.5" step="0.1" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_claude_m" value="6.5" step="0.1" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_claude_c" value="8.0" step="0.1" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3)">hrs per 500</td></tr>
+          <tr><td>QA time per contract</td><td><input type="number" id="r_qa_s" value="5" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_qa_m" value="7" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_qa_c" value="10" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3)">min / contract</td></tr>
+          <tr><td>LE build time per template</td><td><input type="number" id="r_le_s" value="0.75" step="0.05" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_le_m" value="0.75" step="0.05" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_le_c" value="1.0" step="0.05" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3)">hrs / template</td></tr>
+          <tr><td>QA review per template</td><td><input type="number" id="r_tqa_s" value="2.0" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_tqa_m" value="5.0" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td><input type="number" id="r_tqa_c" value="8.0" step="0.5" onchange="calcAll()" style="width:60px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3)">hrs / template</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end">
+    <button class="btn btn-primary" onclick="calcAll();showTab('estimation',null)">Calculate & view estimation →</button>
+  </div>
+</div>
+
+<!-- ESTIMATION -->
+<div id="tab-estimation" class="pane">
+  <div class="metric-row">
+    <div class="metric"><div class="lbl">Migration working days</div><div class="val" id="m-mig-days">—</div></div>
+    <div class="metric"><div class="lbl">Migration QA hrs</div><div class="val" id="m-mig-qa-hrs">—</div></div>
+    <div class="metric"><div class="lbl">Template working days</div><div class="val" id="m-tmpl-days">—</div></div>
+    <div class="metric"><div class="lbl">Template total hrs</div><div class="val" id="m-tmpl-hrs">—</div></div>
+  </div>
+  <div class="metric-row">
+    <div class="metric"><div class="lbl">Combined duration (days)</div><div class="val" id="m-total-days">—</div></div>
+    <div class="metric"><div class="lbl">Combined effort (hrs)</div><div class="val" id="m-total-hrs">—</div></div>
+    <div class="metric"><div class="lbl">Duration (weeks)</div><div class="val" id="m-total-weeks">—</div></div>
+    <div class="metric"><div class="lbl">Complexity</div><div class="val" id="m-complexity" style="font-size:16px">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-file-import" style="color:var(--blue)"></i> Migration model</div>
+    <table class="rt"><thead><tr><th>Metric</th><th>Value</th><th>How calculated</th></tr></thead>
+    <tbody id="mig-body"></tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-template" style="color:var(--blue)"></i> Template model</div>
+    <table class="rt"><thead><tr><th>Metric</th><th>Value</th><th>How calculated</th></tr></thead>
+    <tbody id="tmpl-body"></tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-layout-columns" style="color:var(--blue)"></i> Combined project quote</div>
+    <table class="rt"><thead><tr><th>Metric</th><th>Migration</th><th>Templates</th><th>Combined</th></tr></thead>
+    <tbody id="quote-body"></tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-users" style="color:var(--blue)"></i> Execution calendar</div>
+    <div id="exec-schedule"></div>
+  </div>
+</div>
+
+<!-- P&L -->
+<div id="tab-pl" class="pane">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-adjustments" style="color:var(--blue)"></i> Pricing & role rates</div>
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="field">
+        <label>Price / contract — Migration ($) <span id="price_mig_hint" style="font-size:10px;color:var(--text3);font-weight:400"></span></label>
+        <input type="number" id="price_contract" value="5.00" step="0.5" onchange="this.dataset.userSet='1';calcAll()"/>
+      </div>
+      <div class="field">
+        <label>Price / template ($) <span id="price_tmpl_hint" style="font-size:10px;color:var(--text3);font-weight:400"></span></label>
+        <input type="number" id="price_template" value="5.00" step="0.5" onchange="this.dataset.userSet='1';calcAll()"/>
+      </div>
+      <div class="field"><label>Overhead % of loaded cost</label><input type="number" id="overhead" value="10" onchange="calcAll()"/></div>
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="field"><label>Billable effort % (all resources)</label><input type="number" id="billable_pct" value="90" step="1" onchange="calcAll()"/></div>
+      <div class="info-box" style="align-self:center;margin-top:0">At 90%, 10% of estimated hours are treated as non-billable overhead (admin, ramp, internal review). Applied uniformly across all roles.</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="rt">
+        <thead><tr><th>Role</th><th>Loaded $/day</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>IC (QA)</td><td><input type="number" id="rate_ic" value="30" step="5" onchange="calcAll()" style="width:70px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3);font-size:12px">Contract extraction & review</td></tr>
+          <tr><td>Legal Engineer</td><td><input type="number" id="rate_le" value="55" step="5" onchange="calcAll()" style="width:70px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3);font-size:12px">AI setup, templates, pre-final check</td></tr>
+          <tr><td>Account Owner</td><td><input type="number" id="rate_ao" value="80" step="5" onchange="calcAll()" style="width:70px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3);font-size:12px">15% of total exec days</td></tr>
+          <tr><td>Geo Lead</td><td><input type="number" id="rate_geo" value="120" step="5" onchange="calcAll()" style="width:70px;padding:3px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);font-size:12px"/></td><td style="color:var(--text3);font-size:12px">5% of total exec days — oversight & escalation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="metric-row">
+    <div class="metric"><div class="lbl">Migration revenue</div><div class="val" id="pl-cv">—</div></div>
+    <div class="metric"><div class="lbl">Total cost</div><div class="val" id="pl-cost">—</div></div>
+    <div class="metric"><div class="lbl">Gross margin</div><div class="val" id="pl-gm">—</div></div>
+    <div class="metric"><div class="lbl">Margin %</div><div class="val" id="pl-gmpct">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-receipt" style="color:var(--blue)"></i> Revenue</div>
+    <div id="pl-revenue"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-coins" style="color:var(--blue)"></i> Cost build-up</div>
+    <div id="pl-costrows"></div>
+  </div>
+</div>
+
+<!-- RISKS -->
+<div id="tab-risks" class="pane">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i> Risk & dependency tracker</div>
+    <div id="risk-list"></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="new-risk" placeholder="Risk or dependency description..." style="flex:1;min-width:200px;font-size:13px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/>
+      <select id="new-risk-sev" style="font-size:12px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text)">
+        <option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+      </select>
+      <select id="new-risk-type" style="font-size:12px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text)">
+        <option value="risk">Risk</option><option value="dep">Dependency</option><option value="issue">Issue</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <label style="font-size:12px;color:var(--text2);white-space:nowrap">Impacted milestone:</label>
+      <select id="new-risk-ms" style="font-size:12px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text)">
+        <option value="none">None</option>
+        <option value="kickoff">Kick Off</option>
+        <option value="discovery">Discovery</option>
+        <option value="execution">Execution</option>
+        <option value="qa">QA</option>
+      </select>
+      <label style="font-size:12px;color:var(--text2);white-space:nowrap">Delay if materialises (days):</label>
+      <input id="new-risk-delay" type="number" min="0" max="90" value="0" style="width:70px;font-size:12px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/>
+      <button class="btn btn-primary" onclick="addRisk()">Add risk</button>
+    </div>
+    <div class="info-box" style="margin-top:10px">Timeline impact: all open risks with delay days &gt; 0 stack up and are reflected as a <strong>risk-adjusted completion date</strong> on the Timeline tab.</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-checklist" style="color:var(--blue)"></i> Change order log</div>
+    <div id="co-list"></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="new-co" placeholder="Scope change description..." style="flex:1;min-width:200px;font-size:13px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/>
+      <input id="new-co-val" type="number" placeholder="$ impact" style="width:100px;font-size:12px;padding:7px 9px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/>
+      <button class="btn" onclick="addCO()">Log change</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div id="tab-timeline" class="pane">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-calendar-event" style="color:var(--blue)"></i> Project schedule</div>
+    <div id="timeline-content"></div>
+  </div>
+  <div class="card" id="mig-milestones-card">
+    <div class="card-title"><i class="ti ti-flag" style="color:var(--blue)"></i> Migration milestones</div>
+    <table class="rt"><thead><tr><th>Milestone</th><th>Planned date</th><th>Status</th></tr></thead>
+    <tbody id="milestone-body"></tbody></table>
+  </div>
+  <div class="card" id="tmpl-milestones-card">
+    <div class="card-title"><i class="ti ti-flag-2" style="color:var(--blue)"></i> Template milestones</div>
+    <table class="rt"><thead><tr><th>Milestone</th><th>Planned date</th><th>Status</th></tr></thead>
+    <tbody id="milestone-body-tmpl"></tbody></table>
+  </div>
+</div>
+
+<!-- TIMESHEET -->
+<div id="tab-timesheet" class="pane">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-clock" style="color:var(--blue)"></i> Weekly timesheet tracker</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label style="white-space:nowrap">Week of:</label><input type="date" id="ts-week" style="font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/></div>
+      <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label style="white-space:nowrap">Resource:</label><input id="ts-res" placeholder="Name / ID" style="width:140px;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none"/></div>
+    </div>
+    <div class="ts-grid" id="ts-grid"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:13px;color:var(--text2)">Total logged: <strong id="ts-total" style="color:var(--text)">0.0h</strong> &nbsp;/&nbsp; 40h weekly capacity</div>
+      <button class="btn btn-primary" onclick="saveTimesheet()">Save entry</button>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Submitted entries</div>
+    <div id="ts-entries" style="font-size:12.5px;color:var(--text2)">No entries yet.</div>
+  </div>
+</div>
+
+<!-- PORTFOLIO -->
+<div id="tab-portfolio" class="pane">
+  <div id="portfolio-content"></div>
+</div>
+
+<!-- UTILIZATION -->
+<div id="tab-utilization" class="pane">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-users" style="color:var(--blue)"></i> Resource utilization overview</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+      <label style="font-size:12px;color:var(--text2);font-weight:500">View period:</label>
+      <select id="util-view" onchange="renderUtil()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none">
+        <option value="week">Weekly</option><option value="month">Monthly</option><option value="quarter">Quarterly</option>
+      </select>
+    </div>
+    <div id="util-content"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--blue)"></i> Estimated vs actual hours — by resource</div>
+    <div style="display:flex;gap:16px;margin-bottom:10px;font-size:12px;color:var(--text2)">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#B5D4F4;display:inline-block"></span>Estimated</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#185FA5;display:inline-block"></span>Actual</span>
+    </div>
+    <div style="position:relative;width:100%;height:260px"><canvas id="util-chart" role="img" aria-label="Estimated vs actual hours by resource">Estimated vs actual effort comparison.</canvas></div>
+  </div>
+</div>
+</div><!-- end shell -->
+
+<script>
+// Complexity index helper
+const CX={simple:0,medium:1,complex:2};
+let risks=[
+  {id:1,text:'Client data delivery delay',sev:'high',type:'dep',status:'open',milestone:'execution',delay:5},
+  {id:2,text:'Template scope creep risk',sev:'medium',type:'risk',status:'open',milestone:'discovery',delay:3},
+  {id:3,text:'QA resource availability — week 3',sev:'low',type:'risk',status:'open',milestone:'qa',delay:2}
+];
+let cos=[];
+let tsEntries=[];
+let riskId=4;
+let utilChartInst=null;
+
+function g(id){return document.getElementById(id);}
+function nv(id,def=0){const el=g(id);if(!el)return def;const v=parseFloat(el.value);return isNaN(v)?def:v;}
+function sv(id){return g(id)?.value||'';}
+
+function showTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else{document.querySelectorAll('.tab').forEach(t=>{if(t.textContent.toLowerCase().includes(name.replace('-',' ')))t.classList.add('active');});}
+  const p=g('tab-'+name);
+  if(p) p.classList.add('active');
+  if(name==='utilization') renderUtil();
+  if(name==='portfolio') renderPortfolio();
+}
+
+
+function fmt(d){return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+function addBD(d,days){let r=new Date(d);let rem=Math.ceil(days);while(rem>0){r.setDate(r.getDate()+1);if(r.getDay()!==0&&r.getDay()!==6)rem--;}return r;}
+
+function pickBy(cx,sVal,mVal,cVal){
+  return cx==='simple'?sVal:cx==='medium'?mVal:cVal;
+}
+function ws(id){const el=g(id);return el?el.checked:false;}
+
+function syncWorkstreams(){
+  const hasMig=ws('ws_migration');
+  const hasTmpl=ws('ws_templates');
+  const hasMs=ws('ws_managed');
+  const hasCust=ws('ws_custom');
+
+  // Update pill appearance
+  const pillOn='background:var(--blue);color:#fff;border-color:var(--blue)';
+  const pillOff='background:var(--bg2);color:var(--text2);border-color:var(--border2)';
+  const setPill=(id,on)=>{const el=g(id);if(el)el.setAttribute('style',`display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:500;transition:all .15s;${on?pillOn:pillOff}`);};
+  setPill('pill_migration',hasMig);
+  setPill('pill_templates',hasTmpl);
+  setPill('pill_managed',hasMs);
+  setPill('pill_custom',hasCust);
+
+  // Enable/disable scope field inputs — cards always visible, fields grayed out when inactive
+  const setGroup=(cls,enabled)=>{
+    document.querySelectorAll('.'+cls).forEach(el=>{
+      el.disabled=!enabled;
+      el.style.opacity=enabled?'1':'0.35';
+      el.style.cursor=enabled?'':'not-allowed';
+    });
+    // also dim the card title
+    const cardMap={
+      'scope-mig-input':'scope-migration-card',
+      'scope-tmpl-input':'scope-templates-card',
+      'scope-ms-input':'scope-managed-card',
+      'scope-cust-input':'scope-custom-card'
+    };
+  };
+  setGroup('scope-mig-input',hasMig);
+  setGroup('scope-tmpl-input',hasTmpl);
+  setGroup('scope-ms-input',hasMs);
+  setGroup('scope-cust-input',hasCust);
+
+  // Dim card titles for inactive workstreams
+  const dimCard=(id,active)=>{const el=g(id);if(!el)return;el.style.opacity=active?'1':'0.5';el.style.pointerEvents=active?'':'none';const title=el.querySelector('.card-title');if(title)title.style.color=active?'':'var(--text3)';};
+  // Keep cards visible but allow events only for active ones
+  [['scope-migration-card',hasMig],['scope-templates-card',hasTmpl],['scope-managed-card',hasMs],['scope-custom-card',hasCust]].forEach(([id,on])=>{
+    const el=g(id);if(!el)return;
+    el.style.opacity=on?'1':'0.45';
+    el.querySelectorAll('input,select').forEach(f=>{f.disabled=!on;f.style.cursor=on?'':'not-allowed';});
+  });
+
+  // Auto-set prices from complexity defaults when switching
+  updatePriceDefaults();
+  calcAll();
+}
+
+const PRICE_DEFAULTS={simple:4,medium:5,complex:6};
+function updatePriceDefaults(){
+  const migCx=sv('mig_complexity')||'medium';
+  const tmplCx=sv('tmpl_complexity')||'medium';
+  const pc=g('price_contract');
+  const pt=g('price_template');
+  const hint_mig=g('price_mig_hint');
+  const hint_tmpl=g('price_tmpl_hint');
+  if(hint_mig) hint_mig.textContent=`(default: $${PRICE_DEFAULTS[migCx]} for ${migCx})`;
+  if(hint_tmpl) hint_tmpl.textContent=`(default: $${PRICE_DEFAULTS[tmplCx]} for ${tmplCx})`;
+  // Only set defaults if user has not manually changed (detect by data-user-set attr)
+  if(pc&&!pc.dataset.userSet) pc.value=PRICE_DEFAULTS[migCx];
+  if(pt&&!pt.dataset.userSet) pt.value=PRICE_DEFAULTS[tmplCx];
+}
+
+function calcAll(){
+  const hasMig=ws('ws_migration');
+  const hasTmpl=ws('ws_templates');
+  const hasMs=ws('ws_managed');
+  const hasCust=ws('ws_custom');
+
+  // Per-workstream complexity
+  const migCx=sv('mig_complexity')||'medium';
+  const tmplCx=sv('tmpl_complexity')||'medium';
+
+  const vol=nv('vol',500);
+  const tmplCount=nv('tmpl_count',5);
+  const qaTeam=nv('qacount',2);
+  const leCount=nv('lecount',1);
+  const tmplQATeam=nv('tmpl_qacount',1);
+  const msHours=nv('ms_hours',0);
+  const msRes=nv('ms_resources',1);
+  const custHours=nv('cust_hours',0);
+  const custRes=nv('cust_resources',1);
+  const pricePerContract=nv('price_contract',5);
+  const pricePerTemplate=nv('price_template',5);
+  const overh=nv('overhead',10);
+  const billPct=nv('billable_pct',90)/100;
+  const prodHrs=7;   // fixed: 7 productive hrs/day
+  const leHrs=3.5;   // fixed: 3.5 hrs/day on project (50% split)
+
+  // Role rates (now editable from P&L tab)
+  const rIC=nv('rate_ic',30),rLE=nv('rate_le',55),rAO=nv('rate_ao',80),rGeo=nv('rate_geo',120);
+
+  // Rate table — per complexity
+  const claudeHrsPer500=pickBy(migCx,nv('r_claude_s',5.5),nv('r_claude_m',6.5),nv('r_claude_c',8.0));
+  const qaMinPerContract=pickBy(migCx,nv('r_qa_s',5),nv('r_qa_m',7),nv('r_qa_c',10));
+  const leBuildHrs=pickBy(tmplCx,nv('r_le_s',0.75),nv('r_le_m',0.75),nv('r_le_c',1.0));
+  const tQAHrs=pickBy(tmplCx,nv('r_tqa_s',2.0),nv('r_tqa_m',5.0),nv('r_tqa_c',8.0));
+
+  // ── MIGRATION MODEL ──
+  let migDays=0,qaHrsTotal=0,qaWorkDays=0,claudeHrs=0;
+  if(hasMig){
+    claudeHrs = claudeHrsPer500 * (vol/500);
+    qaHrsTotal = vol * qaMinPerContract / 60;
+    qaWorkDays = qaHrsTotal / (prodHrs * qaTeam);
+    const claudeDays = claudeHrs / 24;
+    migDays = Math.max(qaWorkDays, claudeDays);
+  }
+  const migWeeks = migDays / 5;
+
+  // ── TEMPLATE MODEL ──
+  let tmplDays=0,tmplTotalHrs=0,devWorkDays=0,tmplQADays=0,effortPerTmpl=0;
+  if(hasTmpl){
+    effortPerTmpl = leBuildHrs + tQAHrs;
+    tmplTotalHrs = tmplCount * effortPerTmpl;
+    devWorkDays = (leBuildHrs * tmplCount) / (leHrs * leCount);
+    tmplQADays = (tQAHrs * tmplCount) / (prodHrs * tmplQATeam);
+    tmplDays = Math.max(devWorkDays, tmplQADays);
+  }
+  const tmplWeeks = tmplDays / 5;
+
+  // ── MANAGED SERVICES ──
+  let msDays=0;
+  if(hasMs && msHours>0) msDays = msHours / (prodHrs * msRes);
+
+  // ── CUSTOMISATIONS ──
+  let custDays=0;
+  if(hasCust && custHours>0) custDays = custHours / (prodHrs * custRes);
+
+  // ── COMBINED ──
+  const combinedHrs = qaHrsTotal + tmplTotalHrs + msHours + custHours;
+  const combinedDays = migDays + tmplDays + msDays + custDays;
+  const combinedWeeks = combinedDays / 5;
+
+  // ── SUMMARY METRICS ──
+  const setM=(id,v)=>{const el=g(id);if(el)el.textContent=v;};
+  setM('m-mig-qa-hrs',hasMig?Math.round(qaHrsTotal)+' hrs':'—');
+  setM('m-mig-days',hasMig?Math.round(migDays)+' days':'—');
+  setM('m-tmpl-hrs',hasTmpl?Math.round(tmplTotalHrs)+' hrs':'—');
+  setM('m-tmpl-days',hasTmpl?Math.round(tmplDays)+' days':'—');
+  setM('m-total-hrs',Math.round(combinedHrs)+' hrs');
+  setM('m-total-days',Math.round(combinedDays)+' days');
+  setM('m-total-weeks',combinedWeeks.toFixed(1)+' wks');
+  setM('m-complexity',`Mig: ${migCx} / Tmpl: ${tmplCx}`);
+
+  // ── MIGRATION TABLE ──
+  const migEl=g('mig-body');
+  if(migEl) migEl.innerHTML=hasMig?`
+    <tr><td>Claude batch hrs (this volume)</td><td>${Math.round(claudeHrs)} hrs</td><td>${claudeHrsPer500} hrs/500 × (${vol}÷500)</td></tr>
+    <tr><td>QA hrs total</td><td>${Math.round(qaHrsTotal)} hrs</td><td>${vol} contracts × ${qaMinPerContract} min ÷ 60</td></tr>
+    <tr><td>QA working days needed</td><td>${Math.round(qaWorkDays)} days</td><td>QA hrs ÷ (${prodHrs}h/day × ${qaTeam} reviewers)</td></tr>
+    <tr><td>Claude calendar days (runs 24/7)</td><td>${Math.round(claudeHrs/24)} days</td><td>Rarely the constraint</td></tr>
+    <tr><td><strong>Est. duration (working days)</strong></td><td><strong>${Math.round(migDays)} days</strong></td><td>MAX(QA days, Claude days)</td></tr>
+    <tr><td><strong>Est. duration (weeks)</strong></td><td><strong>${migWeeks.toFixed(1)} wks</strong></td><td>÷ 5 working days</td></tr>
+  `:'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:12px">Migration not in scope for this project</td></tr>';
+
+  // ── TEMPLATE TABLE ──
+  const tmplEl=g('tmpl-body');
+  if(tmplEl) tmplEl.innerHTML=hasTmpl?`
+    <tr><td>Build time per template (LE)</td><td>${leBuildHrs.toFixed(2)} hrs</td><td>Rate table — ${tmplCx}</td></tr>
+    <tr><td>QA / review time per template</td><td>${tQAHrs.toFixed(2)} hrs</td><td>Rate table — ${tmplCx}</td></tr>
+    <tr><td>Total effort per template</td><td>${effortPerTmpl.toFixed(2)} hrs</td><td>Build + QA</td></tr>
+    <tr><td>Total effort — all ${tmplCount} templates</td><td>${Math.round(tmplTotalHrs)} hrs</td><td>${tmplCount} × ${effortPerTmpl.toFixed(2)}</td></tr>
+    <tr><td>Developer (LE) working days</td><td>${Math.round(devWorkDays)} days</td><td>LE build hrs ÷ ${leHrs}h/day ÷ ${leCount} LE(s)</td></tr>
+    <tr><td>QA working days</td><td>${Math.round(tmplQADays)} days</td><td>QA hrs ÷ (${prodHrs}h/day × ${tmplQATeam} reviewer(s))</td></tr>
+    <tr><td><strong>Est. duration (working days)</strong></td><td><strong>${Math.round(tmplDays)} days</strong></td><td>MAX(dev days, QA days)</td></tr>
+    <tr><td><strong>Est. duration (weeks)</strong></td><td><strong>${tmplWeeks.toFixed(1)} wks</strong></td><td>÷ 5 working days</td></tr>
+  `:'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:12px">Templates not in scope for this project</td></tr>';
+
+  // ── COMBINED QUOTE TABLE ──
+  const qb=g('quote-body');
+  if(qb){
+    let rows=`<tr><td>Workstreams</td><td>${hasMig?vol+' contracts':'—'}</td><td>${hasTmpl?tmplCount+' templates':'—'}</td><td>${combinedHrs.toFixed(1)+' hrs total'}</td></tr>`;
+    rows+=`<tr><td>Complexity</td><td>${hasMig?migCx:'—'}</td><td>${hasTmpl?tmplCx:'—'}</td><td>—</td></tr>`;
+    rows+=`<tr><td>Total effort (hrs)</td><td>${hasMig?Math.round(qaHrsTotal):'—'}</td><td>${hasTmpl?Math.round(tmplTotalHrs):'—'}</td><td><strong>${Math.round(combinedHrs)}</strong></td></tr>`;
+    rows+=`<tr><td>Duration (working days)</td><td>${hasMig?Math.round(migDays):'—'}</td><td>${hasTmpl?Math.round(tmplDays):'—'}</td><td><strong>${Math.round(combinedDays)}</strong></td></tr>`;
+    rows+=`<tr><td>Duration (weeks)</td><td>${hasMig?migWeeks.toFixed(1):'—'}</td><td>${hasTmpl?tmplWeeks.toFixed(1):'—'}</td><td><strong>${combinedWeeks.toFixed(1)}</strong></td></tr>`;
+    if(hasMs) rows+=`<tr><td>Managed services</td><td colspan="2">${msHours} contracted hrs · ${msRes} resource(s)</td><td>${Math.round(msDays)} days</td></tr>`;
+    if(hasCust) rows+=`<tr><td>Customisations</td><td colspan="2">${custHours} contracted hrs · ${custRes} resource(s)</td><td>${Math.round(custDays)} days</td></tr>`;
+    qb.innerHTML=rows;
+  }
+
+  // ── EXECUTION CALENDAR ──
+  const sd=new Date(sv('startdate')||'2026-06-10');
+  let schedHTML='<div class="pl-row"><span style="color:var(--text2)">Planned start</span><span>'+fmt(sd)+'</span></div>';
+  let curEnd=new Date(sd);
+  if(hasMig){const migEnd=addBD(sd,migDays);schedHTML+=`<div class="pl-row"><span style="color:var(--text2)">Migration end (${qaTeam} QA · ${Math.round(migDays)} days)</span><span>${fmt(migEnd)}</span></div>`;curEnd=migEnd;}
+  if(hasTmpl){const tmplEnd=addBD(curEnd,tmplDays);schedHTML+=`<div class="pl-row"><span style="color:var(--text2)">Templates end (${leCount} LE, ${tmplQATeam} QA · ${Math.round(tmplDays)} days)</span><span>${fmt(tmplEnd)}</span></div>`;curEnd=tmplEnd;}
+  if(hasMs){const msEnd=addBD(curEnd,msDays);schedHTML+=`<div class="pl-row"><span style="color:var(--text2)">Managed services end (${Math.round(msDays)} days)</span><span>${fmt(msEnd)}</span></div>`;curEnd=msEnd;}
+  if(hasCust){const custEnd=addBD(curEnd,custDays);schedHTML+=`<div class="pl-row"><span style="color:var(--text2)">Customisations end (${Math.round(custDays)} days)</span><span>${fmt(custEnd)}</span></div>`;curEnd=custEnd;}
+  schedHTML+='<div class="pl-row total"><span>Estimated completion date</span><span>'+fmt(curEnd)+'</span></div>';
+  const esEl=g('exec-schedule');if(esEl)esEl.innerHTML=schedHTML;
+
+  // Compute workstream end dates BEFORE calling renderTimeline so _lastCalc is populated
+  const migEnd2=hasMig?addBD(sd,migDays):null;
+  let _cur2=new Date(migEnd2||sd);
+  const tmplEnd2=hasTmpl?addBD(_cur2,tmplDays):null; if(tmplEnd2)_cur2=new Date(tmplEnd2);
+  const msEnd2=hasMs&&msDays>0?addBD(_cur2,msDays):null; if(msEnd2)_cur2=new Date(msEnd2);
+  const custEnd2=hasCust&&custDays>0?addBD(_cur2,custDays):null;
+  // Patch _lastCalc with dates before render calls
+  window._lastCalc=window._lastCalc||{};
+  Object.assign(window._lastCalc,{tlSD:sd,tlMigEnd:migEnd2,tlTmplEnd:tmplEnd2,tlMsEnd:msEnd2,tlCustEnd:custEnd2});
+  renderMilestones(sd,migEnd2||sd,curEnd);
+  renderTimeline(sd,migEnd2||sd,curEnd,migDays,tmplDays+msDays+custDays);
+
+  // ── P&L ──
+  const migRevenue = hasMig ? vol * pricePerContract : 0;
+  const tmplRevenue = hasTmpl ? tmplCount * pricePerTemplate : 0;
+  const totalRevenue = migRevenue + tmplRevenue;
+  // billable_pct: only billable fraction of days drives cost (e.g. 90% = 10% non-billable overhead)
+  const bf=billPct;
+  const migQACost = hasMig ? qaWorkDays * qaTeam * rIC * bf : 0;
+  const tmplLECost = hasTmpl ? devWorkDays * leCount * rLE * bf : 0;
+  const tmplQACost = hasTmpl ? tmplQADays * tmplQATeam * rIC * bf : 0;
+  const msCost = hasMs ? (msHours/prodHrs) * rIC * bf : 0;
+  const custCost = hasCust ? (custHours/prodHrs) * rLE * bf : 0;
+  const totalExecDays = migDays + tmplDays + msDays + custDays;
+  const aoCost = 0.15 * totalExecDays * rAO * bf;
+  const geoCost = 0.05 * totalExecDays * rGeo * bf;
+  const baseCost = migQACost + tmplLECost + tmplQACost + msCost + custCost + aoCost + geoCost;
+  const ovhCost = (overh/100) * baseCost;
+  const totalCost = baseCost + ovhCost;
+  const gm = totalRevenue - totalCost;
+  const gmPct = totalRevenue > 0 ? (gm / totalRevenue) * 100 : 0;
+
+  const setV=(id,v)=>{const el=g(id);if(el)el.textContent=v;};
+  const setC=(id,c)=>{const el=g(id);if(el)el.style.color=c;};
+  setV('pl-cv','$'+Math.round(migRevenue).toLocaleString());
+  setV('pl-cost','$'+Math.round(totalCost).toLocaleString());
+  setV('pl-gm',(gm>=0?'$':'-$')+Math.abs(Math.round(gm)).toLocaleString());
+  setC('pl-gm',gm>=0?'var(--green)':'var(--red)');
+  setV('pl-gmpct',gmPct.toFixed(1)+'%');
+  setC('pl-gmpct',gm>=0?'var(--green)':'var(--red)');
+
+  const revEl=g('pl-revenue');
+  if(revEl) revEl.innerHTML=`
+    ${hasMig?`<div class="pl-row"><span>Migration: ${vol.toLocaleString()} contracts × $${pricePerContract}/contract</span><span>$${Math.round(migRevenue).toLocaleString()}</span></div>`:''}
+    ${hasTmpl?`<div class="pl-row"><span>Templates: ${tmplCount} × $${pricePerTemplate}/template</span><span>${pricePerTemplate>0?'$'+Math.round(tmplRevenue).toLocaleString():'<span style="color:var(--amber)">TBD</span>'}</span></div>`:''}
+    ${hasMs?`<div class="pl-row"><span>Managed Services</span><span style="color:var(--amber)">TBD</span></div>`:''}
+    ${hasCust?`<div class="pl-row"><span>Customisations</span><span style="color:var(--amber)">TBD</span></div>`:''}
+    <div class="pl-row total"><span>Total revenue</span><span>$${Math.round(totalRevenue).toLocaleString()}${tmplRevenue===0&&hasTmpl?' <span style="font-size:11px;color:var(--amber)">(excl. template — TBD)</span>':''}</span></div>`;
+
+  const crEl=g('pl-costrows');
+  if(crEl) crEl.innerHTML=`
+    ${hasMig?`<div class="pl-row"><span>Migration QA — IC (${qaTeam} rev. × ${qaWorkDays.toFixed(2)} days × $${rIC}/day × ${(billPct*100).toFixed(0)}% billable)</span><span>$${Math.round(migQACost).toLocaleString()}</span></div>`:''}
+    ${hasTmpl?`<div class="pl-row"><span>Template LE build (${leCount} LE × ${devWorkDays.toFixed(2)} days × $${rLE}/day × ${(billPct*100).toFixed(0)}% billable)</span><span>$${Math.round(tmplLECost).toLocaleString()}</span></div>`:''}
+    ${hasTmpl?`<div class="pl-row"><span>Template QA — IC (${tmplQATeam} rev. × ${tmplQADays.toFixed(2)} days × $${rIC}/day × ${(billPct*100).toFixed(0)}% billable)</span><span>$${Math.round(tmplQACost).toLocaleString()}</span></div>`:''}
+    ${hasMs?`<div class="pl-row"><span>Managed Services — IC (${msHours} hrs ÷ ${prodHrs}h/day × $${rIC}/day)</span><span>$${Math.round(msCost).toLocaleString()}</span></div>`:''}
+    ${hasCust?`<div class="pl-row"><span>Customisations — LE (${custHours} hrs ÷ ${prodHrs}h/day × $${rLE}/day)</span><span>$${Math.round(custCost).toLocaleString()}</span></div>`:''}
+    <div class="pl-row"><span>Account owner (15% of ${totalExecDays.toFixed(2)} exec days × $${rAO}/day)</span><span>$${Math.round(aoCost).toLocaleString()}</span></div>
+    <div class="pl-row"><span>Geo lead (5% of ${totalExecDays.toFixed(2)} exec days × $${rGeo}/day)</span><span>$${Math.round(geoCost).toLocaleString()}</span></div>
+    <div class="pl-row"><span>Overhead / contingency (${overh}%)</span><span>$${Math.round(ovhCost).toLocaleString()}</span></div>
+    <div class="pl-row total"><span>Total cost</span><span>$${Math.round(totalCost).toLocaleString()}</span></div>
+    <div class="pl-row total" style="color:${gm>=0?'var(--green)':'var(--red)'}"><span>Gross margin (${gmPct.toFixed(1)}%)</span><span>${gm>=0?'$':'-$'}${Math.abs(Math.round(gm)).toLocaleString()}</span></div>`;
+
+  // Finalise _lastCalc with P&L values (workstream dates already set above before renderTimeline)
+  Object.assign(window._lastCalc,{migRevenue,totalCost,gm,gmPct,projEnd:curEnd,totalExecDays});
+}
+
+function renderMilestones(sd,migEnd,projEnd){
+  const stageOrder=['kickoff','discovery','execution','qa'];
+  const curIdx=stageOrder.indexOf(sv('milestone'));
+  const hasMig=ws('ws_migration');
+  const hasTmpl=ws('ws_templates');
+  const lc=window._lastCalc||{};
+
+  // Migration milestones — based on sd → migEnd
+  const mDiscStart=addBD(sd,1);
+  const mExecStart=addBD(mDiscStart,3);
+  const mMs=[
+    {name:'Kick Off',date:sd},
+    {name:'Discovery',date:mDiscStart},
+    {name:'Execution',date:mExecStart},
+    {name:'QA',date:migEnd||sd}
+  ];
+  const mbEl=g('milestone-body');
+  if(mbEl) mbEl.innerHTML=hasMig?mMs.map((m,i)=>{
+    const badge=i<curIdx?'<span class="badge b-green">Done</span>':i===curIdx?'<span class="badge b-blue">In progress</span>':'<span class="badge b-gray">Planned</span>';
+    return `<tr><td>${m.name}</td><td>${fmt(m.date)}</td><td>${badge}</td></tr>`;
+  }).join(''):'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:10px">Migration not in scope</td></tr>';
+
+  // Template milestones — starts after migration ends, ends at projEnd
+  const tmplCard=g('tmpl-milestones-card');
+  const tmbEl=g('milestone-body-tmpl');
+  if(tmplCard) tmplCard.style.opacity=hasTmpl?'1':'0.45';
+  const tmplStart=lc.tlMigEnd||sd;
+  const tDiscStart=addBD(tmplStart,1);
+  const tExecStart=addBD(tDiscStart,2);
+  const tMs=[
+    {name:'Kick Off',date:tmplStart},
+    {name:'Discovery',date:tDiscStart},
+    {name:'Execution',date:tExecStart},
+    {name:'QA',date:projEnd||tmplStart}
+  ];
+  if(tmbEl) tmbEl.innerHTML=hasTmpl?tMs.map((m,i)=>{
+    const badge='<span class="badge b-gray">Planned</span>';
+    return `<tr><td>${m.name}</td><td>${fmt(m.date)}</td><td>${badge}</td></tr>`;
+  }).join(''):'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:10px">Templates not in scope</td></tr>';
+}
+
+let lastTimelineArgs=[];
+function renderTimeline(sd,execEnd,qaEnd,execDays,qaDays){
+  lastTimelineArgs=[sd,execEnd,qaEnd,execDays,qaDays];
+  const openDelay=risks.filter(r=>r.status==='open'&&r.delay>0).reduce((a,r)=>a+r.delay,0);
+  const riskQaEnd=openDelay>0?addBD(qaEnd,openDelay):null;
+  const slipColor=openDelay===0?'var(--green)':openDelay<=5?'var(--amber)':'var(--red)';
+  const riskRow=riskQaEnd?`
+    <div class="pl-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">
+      <span style="color:var(--text2)">Open risk delay (${risks.filter(r=>r.status==="open"&&r.delay>0).length} risks stacked)</span>
+      <span style="color:${slipColor};font-weight:600">+${openDelay} business days</span>
+    </div>
+    <div class="pl-row total" style="color:${slipColor}">
+      <span>Risk-adjusted completion date</span>
+      <span>${fmt(riskQaEnd)}</span>
+    </div>`:`<div class="pl-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)"><span style="color:var(--text3)">No open risks with delay impact</span><span class="badge b-green">On track</span></div>`;
+  // Build per-workstream date rows from stored calc
+  const lc2=window._lastCalc||{};
+  const tlSD=lc2.tlSD||sd, tlMigEnd=lc2.tlMigEnd, tlTmplEnd=lc2.tlTmplEnd, tlMsEnd=lc2.tlMsEnd, tlCustEnd=lc2.tlCustEnd;
+  let tlRows=`<div class="pl-row"><span style="color:var(--text2)">Project start date</span><span>${fmt(sd)}</span></div>`;
+  if(tlMigEnd){
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Migration start</span><span style="color:var(--text2)">${fmt(sd)}</span></div>`;
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Migration end</span><span style="color:var(--text2)">${fmt(tlMigEnd)}</span></div>`;
+  }
+  const tmplActualStart=tlMigEnd||sd;
+  if(tlTmplEnd){
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Templates start</span><span style="color:var(--text2)">${fmt(tmplActualStart)}</span></div>`;
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Templates end</span><span style="color:var(--text2)">${fmt(tlTmplEnd)}</span></div>`;
+  }
+  const msActualStart=tlTmplEnd||tlMigEnd||sd;
+  if(tlMsEnd){
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Managed services start</span><span style="color:var(--text2)">${fmt(msActualStart)}</span></div>`;
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Managed services end</span><span style="color:var(--text2)">${fmt(tlMsEnd)}</span></div>`;
+  }
+  const custActualStart=tlMsEnd||tlTmplEnd||tlMigEnd||sd;
+  if(tlCustEnd){
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Customisations start</span><span style="color:var(--text2)">${fmt(custActualStart)}</span></div>`;
+    tlRows+=`<div class="pl-row" style="padding-left:12px;border-left:2px solid var(--border2)"><span style="color:var(--text3)">Customisations end</span><span style="color:var(--text2)">${fmt(tlCustEnd)}</span></div>`;
+  }
+  g('timeline-content').innerHTML=`
+    ${tlRows}
+    <div class="pl-row total"><span>Final Completion Date</span><span>${fmt(qaEnd)}</span></div>
+    ${riskRow}`;
+}
+
+function renderOnHoldBanner(){
+  const status=sv('projstatus');
+  const banner=g('onhold-banner');
+  if(banner) banner.style.display=status==='onhold'?'block':'none';
+}
+
+function renderRisks(){
+  const el=g('risk-list');
+  if(!risks.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">No items logged.</div>';return;}
+  el.innerHTML=risks.map(r=>{
+    const sev={high:'<span class="rag-r">High</span>',medium:'<span class="rag-a">Medium</span>',low:'<span class="rag-g">Low</span>'}[r.sev];
+    const type={risk:'<span class="badge b-amber">Risk</span>',dep:'<span class="badge b-blue">Dependency</span>',issue:'<span class="badge b-red">Issue</span>'}[r.type];
+    const msLabel={kickoff:'Kick Off',discovery:'Discovery',execution:'Execution',qa:'QA',none:'—'}[r.milestone||'none']||'—';
+    const delayTag=r.delay>0?`<span style="font-size:11px;color:var(--red);font-weight:600">+${r.delay}d delay</span>`:'';
+    const msTag=r.milestone&&r.milestone!=='none'?`<span class="badge b-gray">${msLabel}</span>`:'';
+    return `<div class="risk-row"><div style="flex:1"><div style="font-size:13px;margin-bottom:4px">${r.text}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${msTag}${delayTag}</div></div><div style="display:flex;gap:6px;align-items:center;flex-shrink:0">${sev}${type}<button class="btn" style="padding:3px 10px;font-size:11px" onclick="closeRisk(${r.id})">Close</button></div></div>`;
+  }).join('');
+}
+
+function renderCOs(){
+  const el=g('co-list');
+  if(!cos.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">No change orders logged.</div>';return;}
+  el.innerHTML=cos.map(co=>`<div class="risk-row"><div style="flex:1;font-size:13px">${co.text} <span style="font-size:11px;color:var(--text3)">${co.date}</span></div><div style="font-size:13px;font-weight:600;color:${co.val>=0?'var(--green)':'var(--red)'};">${co.val>=0?'+$':'-$'}${Math.abs(co.val).toLocaleString()}</div></div>`).join('');
+}
+
+function addRisk(){
+  const t=g('new-risk').value.trim();if(!t)return;
+  const delay=parseInt(g('new-risk-delay')?.value)||0;
+  risks.push({id:riskId++,text:t,sev:sv('new-risk-sev'),type:sv('new-risk-type'),status:'open',milestone:sv('new-risk-ms'),delay});
+  g('new-risk').value='';if(g('new-risk-delay'))g('new-risk-delay').value=0;
+  renderRisks();renderTimeline(...lastTimelineArgs);
+}
+function closeRisk(id){risks=risks.filter(r=>r.id!==id);renderRisks();}
+function addCO(){
+  const t=g('new-co').value.trim();if(!t)return;
+  const v=parseFloat(g('new-co-val').value)||0;
+  cos.push({text:t,val:v,date:new Date().toLocaleDateString('en-IN')});
+  g('new-co').value='';g('new-co-val').value='';renderCOs();
+}
+
+function initTS(){
+  const cats=['Kick Off','Discovery','Execution','QA'];
+  const days=['Mon','Tue','Wed','Thu','Fri'];
+  const gr=g('ts-grid');
+  gr.innerHTML=`<div class="ts-cell ts-head">Category</div>${days.map(d=>`<div class="ts-cell ts-head" style="text-align:center">${d}</div>`).join('')}`;
+  cats.forEach((cat,ci)=>{
+    gr.innerHTML+=`<div class="ts-cell" style="font-size:11.5px;color:var(--text2);line-height:1.3">${cat}</div>`;
+    days.forEach((_,di)=>{
+      gr.innerHTML+=`<div class="ts-cell"><input class="ts-input" type="number" min="0" max="24" step="0.5" value="0" id="ts-${ci}-${di}" oninput="updateTSTotal()"/></div>`;
+    });
+  });
+}
+function updateTSTotal(){
+  let t=0;
+  for(let ci=0;ci<4;ci++)for(let di=0;di<5;di++){const el=g(`ts-${ci}-${di}`);if(el)t+=parseFloat(el.value)||0;}
+  const tot=g('ts-total');if(tot)tot.textContent=t.toFixed(1)+'h';
+  if(tot) tot.style.color=t>40?'var(--red)':t>32?'var(--amber)':'var(--text)';
+}
+function saveTimesheet(){
+  const w=sv('ts-week')||'—';
+  const res=g('ts-res')?.value||'Unknown';
+  let t=0;
+  for(let ci=0;ci<4;ci++)for(let di=0;di<5;di++){const el=g(`ts-${ci}-${di}`);if(el)t+=parseFloat(el.value)||0;}
+  tsEntries.push({week:w,res,total:t.toFixed(1)});
+  g('ts-entries').innerHTML=tsEntries.map(e=>`<div style="padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>${e.res} &nbsp;·&nbsp; week of ${e.week}</span><span style="font-weight:600">${e.total}h</span></div>`).join('');
+}
+
+function renderPortfolio(){
+  const health=sv('health');
+  const hb={green:'<span class="rag-g">Green</span>',amber:'<span class="rag-a">Amber</span>',red:'<span class="rag-r">Red</span>'}[health];
+  const pname=sv('pname')||'Project';
+  const pid=sv('pid')||'PRJ-001';
+  const lc=window._lastCalc||{};
+  const cv=lc.migRevenue||0,tc=lc.totalCost||0,gmPct=lc.gmPct||0;
+  const qaEnd=lc.projEnd||new Date();
+  const stageOrder=['kickoff','discovery','execution','qa'];
+  const msLabels={kickoff:'Kick Off',discovery:'Discovery',execution:'Execution',qa:'QA'};
+  const curMS=sv('milestone');
+  const pct=Math.round((stageOrder.indexOf(curMS)/3)*100);
+  const rh=risks.filter(r=>r.sev==='high').length;
+  const openDelay=risks.filter(r=>r.status==='open'&&r.delay>0).reduce((a,r)=>a+r.delay,0);
+  const riskQaEnd=openDelay>0?addBD(qaEnd,openDelay):qaEnd;
+  const projStatus=sv('projstatus')||'active';
+  const statusBadge={active:'<span class="badge b-blue">Active</span>',onhold:'<span style="background:var(--amber-bg);color:var(--amber);padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600">On-Hold</span>',completed:'<span class="badge b-green">Completed</span>',cancelled:'<span class="badge b-gray">Cancelled</span>'}[projStatus];
+
+  const samples=[
+    {id:'PRJ-002',name:'Beta Corp Contracts',health:'green',pct:72,type:'Simple',gm:'+34%',end:'14 Jul 2026',risks:0},
+    {id:'PRJ-003',name:'Gamma Legal Review',health:'amber',pct:45,type:'Complex',gm:'+18%',end:'28 Aug 2026',risks:1},
+    {id:'PRJ-004',name:'Delta Compliance Suite',health:'red',pct:20,type:'Medium',gm:'+5%',end:'15 Sep 2026',risks:2},
+  ];
+
+  const el=g('portfolio-content');
+  el.innerHTML=`
+    <div class="metric-row" style="margin-bottom:16px">
+      <div class="metric"><div class="lbl">Active projects</div><div class="val">4</div></div>
+      <div class="metric"><div class="lbl">At risk (red)</div><div class="val" style="color:var(--red)">1</div></div>
+      <div class="metric"><div class="lbl">Avg margin</div><div class="val">+19%</div></div>
+      <div class="metric"><div class="lbl">Open high risks</div><div class="val" style="color:${rh>0?'var(--red)':'var(--green)'}">${rh}</div></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-header">
+        <div><span style="font-size:14px;font-weight:600">${pname}</span>&nbsp;&nbsp;<span style="font-size:11px;color:var(--text3)">${pid}</span></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${hb}${statusBadge}<span class="badge b-gray">${sv('ptype')}</span><span class="badge b-blue">${msLabels[curMS]||curMS}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:var(--blue)"></div></div>
+        <span style="font-size:12px;color:var(--text2);min-width:32px">${pct}%</span>
+      </div>
+      <div style="display:flex;gap:16px;font-size:12px;color:var(--text3);flex-wrap:wrap">
+        <span>Base completion: ${fmt(qaEnd)}</span>
+        ${openDelay>0?`<span style="color:var(--red);font-weight:600">Risk-adj: ${fmt(riskQaEnd)} (+${openDelay}d)</span>`:'<span style="color:var(--green)">No risk delay</span>'}
+        <span>Margin: ${gmPct.toFixed(1)}%</span>
+        <span>High risks: ${rh}</span>
+      </div>
+    </div>
+    ${samples.map(p=>{
+      const pb={green:'var(--blue)',amber:'var(--amber)',red:'var(--red)'}[p.health];
+      const hbp={green:'<span class="rag-g">Green</span>',amber:'<span class="rag-a">Amber</span>',red:'<span class="rag-r">Red</span>'}[p.health];
+      return `<div class="proj-card">
+        <div class="proj-header">
+          <div><span style="font-size:14px;font-weight:600">${p.name}</span>&nbsp;&nbsp;<span style="font-size:11px;color:var(--text3)">${p.id}</span></div>
+          <div style="display:flex;gap:6px;align-items:center">${hbp}<span class="badge b-gray">${p.type}</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div class="prog-bar"><div class="prog-fill" style="width:${p.pct}%;background:${pb}"></div></div>
+          <span style="font-size:12px;color:var(--text2);min-width:32px">${p.pct}%</span>
+        </div>
+        <div style="display:flex;gap:20px;font-size:12px;color:var(--text3);flex-wrap:wrap">
+          <span>Completion: ${p.end}</span><span>Margin: ${p.gm}</span><span>High risks: ${p.risks}</span>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function renderUtil(){
+  const view=sv('util-view')||'week';
+  const mult={week:1,month:4,quarter:12}[view];
+  const resources=[
+    {name:'Priya K.',role:'Legal Engineer',proj:'PRJ-001',est:40,act:38},
+    {name:'Arjun R.',role:'IC',proj:'PRJ-001, PRJ-002',est:40,act:44},
+    {name:'Meera S.',role:'Legal Engineer',proj:'PRJ-002',est:40,act:36},
+    {name:'Dev P.',role:'IC',proj:'PRJ-003',est:40,act:42},
+    {name:'Sunita L.',role:'Legal Engineer',proj:'PRJ-001, PRJ-003',est:40,act:40},
+    {name:'Rohit M.',role:'IC',proj:'PRJ-004',est:40,act:28},
+    {name:'Kavitha N.',role:'Legal Engineer',proj:'PRJ-004',est:40,act:46},
+    {name:'Sanjay B.',role:'IC',proj:'PRJ-002',est:40,act:38},
+  ];
+  const el=g('util-content');
+  el.innerHTML=`<div style="overflow-x:auto"><table class="rt" style="width:100%;min-width:580px">
+    <thead><tr><th>Resource</th><th>Role</th><th>Projects</th><th>Est. hrs</th><th>Actual hrs</th><th>Deviation</th><th style="min-width:100px">Utilization</th></tr></thead>
+    <tbody>${resources.map(r=>{
+      const est=r.est*mult,act=r.act*mult,dev=act-est;
+      const util=Math.round(act/est*100);
+      const devStr=(dev>=0?'+':'')+dev+'h';
+      const devColor=Math.abs(dev)/est>0.15?'var(--red)':dev>4?'var(--amber)':'var(--green)';
+      const barColor=util>110?'var(--red)':util>95?'var(--amber)':'var(--blue)';
+      const onHold=r.proj.includes('PRJ-001')&&(sv('projstatus')==='onhold');
+      return `<tr style="${onHold?'opacity:0.5':''}">
+        <td style="font-weight:600">${r.name}${onHold?' <span class="badge b-amber" style="font-size:10px;padding:1px 6px">On-Standby</span>':''}</td>
+        <td style="color:var(--text2)">${r.role}</td>
+        <td style="font-size:11.5px;color:var(--text3)">${r.proj}${onHold?' <span style="color:var(--amber);font-size:10px">(on-hold)</span>':''}</td>
+        <td>${onHold?'—':est+'h'}</td><td>${onHold?'—':act+'h'}</td>
+        <td style="color:${onHold?'var(--text3)':devColor};font-weight:600">${onHold?'—':devStr}</td>
+        <td>
+          ${onHold?'<span style="font-size:11px;color:var(--amber)">De-allocated</span>':`<div style="font-size:11.5px;margin-bottom:3px;color:${barColor};font-weight:600">${util}%</div><div class="util-bar"><div class="util-fill" style="width:${Math.min(util,120)}%;background:${barColor}"></div></div>`}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+
+  if(utilChartInst){utilChartInst.destroy();utilChartInst=null;}
+  utilChartInst=new Chart(g('util-chart'),{
+    type:'bar',
+    data:{
+      labels:resources.map(r=>r.name.split(' ')[0]),
+      datasets:[
+        {label:'Estimated',data:resources.map(r=>r.est*mult),backgroundColor:'#B5D4F4',borderWidth:0,borderRadius:3},
+        {label:'Actual',data:resources.map(r=>r.act*mult),backgroundColor:'#185FA5',borderWidth:0,borderRadius:3}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{font:{size:11},color:'#888880'},grid:{display:false}},
+      y:{ticks:{font:{size:11},color:'#888880'},grid:{color:'rgba(0,0,0,.06)'}}
+    }}
+  });
+}
+
+renderRisks();
+renderCOs();
+initTS();
+updatePriceDefaults();
+syncWorkstreams();
+renderPortfolio();
+renderOnHoldBanner();
+</script>
+</body>
+</html>
